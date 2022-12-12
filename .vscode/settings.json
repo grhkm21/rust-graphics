@@ -1,7 +1,12 @@
 {
-    "rust-analyzer.checkOnSave.enable": false,
+    "rust-analyzer.checkOnSave.enable": true,
     "rust-analyzer.checkOnSave.allTargets": false,
     "rust-analyzer.checkOnSave.target": "wasm32-unknown-unknown",
     "rust-analyzer.cargo.buildScripts.enable": false,
-    "rust-analyzer.cargo.buildScripts.invocationLocation": "root"
+    "rust-analyzer.cargo.buildScripts.invocationLocation": "root",
+    "rust-analyzer.checkOnSave.extraArgs": [
+        "--target-dir",
+        "/tmp/rust-analyzer-check"
+    ],
+    "editor.formatOnSave": true
 }
