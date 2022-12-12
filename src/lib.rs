@@ -1,31 +1,59 @@
+mod consts;
+
+use consts::*;
 use std::panic;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{console, CanvasRenderingContext2d, HtmlCanvasElement, MouseEvent};
 
 #[wasm_bindgen]
-pub struct Universe {
-    val: u32
+pub struct House {
+    pos_x: f64,
+    pos_y: f64,
+    dir_x: f64,
+    dir_y: f64,
+    width: f64,
+    height: f64,
 }
 
 #[wasm_bindgen]
-impl Universe {
-    pub fn new() -> Universe {
-        Universe {
-            val: 0
+impl House {
+    pub fn new(speed: f64) -> House {
+        // TODO: abstract width and height, don't hardcode
+        House {
+            pos_x: 0.0,
+            pos_y: 0.0,
+            dir_x: speed,
+            dir_y: speed,
+            width: 200.0,
+            height: 190.0,
         }
     }
 
-    pub fn get_val(&self) -> u32 {
-        self.val
+    pub fn get_x(&self) -> f64 {
+        self.pos_x
     }
 
-    pub fn set_val(&mut self, val: u32) {
-        self.val = val;
+    pub fn get_y(&self) -> f64 {
+        self.pos_y
     }
 
-    pub fn inc_val(&mut self) {
-        self.val += 1;
+    pub fn set_pos(&mut self, x: f64, y: f64) {
+        self.pos_x = x;
+        self.pos_y = y;
+    }
+
+    pub fn tick(&mut self) {
+        self.pos_x += self.dir_x;
+        self.pos_y += self.dir_y;
+
+        if self.pos_x < 0.0 || self.pos_x + self.width > WIDTH.into() {
+            self.dir_x *= -1.0;
+        }
+
+        if self.pos_y < 0.0 || self.pos_y + self.height > HEIGHT.into() {
+            self.dir_y *= -1.0;
+        }
     }
 }
 
@@ -45,8 +73,8 @@ pub fn start() -> Result<CanvasRenderingContext2d, JsValue> {
         .unwrap();
 
     canvas.set_attribute(&"id", &"canvas").unwrap();
-    canvas.set_width(500);
-    canvas.set_height(500);
+    canvas.set_width(WIDTH);
+    canvas.set_height(HEIGHT);
     body.append_child(&canvas)?;
 
     let ctx = canvas
@@ -73,20 +101,20 @@ pub fn start() -> Result<CanvasRenderingContext2d, JsValue> {
 }
 
 #[wasm_bindgen]
-pub fn draw(ctx: &CanvasRenderingContext2d, x: f64) {
-    ctx.clear_rect(0.0, 0.0, 500.0, 500.0);
+pub fn draw(ctx: &CanvasRenderingContext2d, pos_x: f64, pos_y: f64) {
+    ctx.clear_rect(0.0, 0.0, WIDTH.into(), HEIGHT.into());
 
     ctx.set_fill_style(&"cyan".into());
-    ctx.fill_rect(0.0, 0.0, 500.0, 500.0);
+    ctx.fill_rect(0.0, 0.0, WIDTH.into(), HEIGHT.into());
 
     ctx.set_fill_style(&"black".into());
-    ctx.set_line_width(10.0);
-    ctx.stroke_rect(75.0 + x, 140.0, 150.0, 110.0);
-    ctx.fill_rect(130.0 + x, 190.0, 40.0, 60.0);
+    ctx.set_line_width(3.0);
+    ctx.stroke_rect(25.0 + pos_x, 80.0 + pos_y, 150.0, 110.0);
+    ctx.fill_rect(80.0 + pos_x, 130.0 + pos_y, 40.0, 60.0);
     ctx.begin_path();
-    ctx.move_to(50.0 + x, 140.0);
-    ctx.line_to(150.0 + x, 60.0);
-    ctx.line_to(250.0 + x, 140.0);
+    ctx.move_to(0.0 + pos_x, 80.0 + pos_y);
+    ctx.line_to(100.0 + pos_x, 0.0 + pos_y);
+    ctx.line_to(200.0 + pos_x, 80.0 + pos_y);
     ctx.close_path();
     ctx.stroke();
 
